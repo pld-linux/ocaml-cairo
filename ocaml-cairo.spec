@@ -9,11 +9,14 @@ Group:		Libraries
 # cvs -d:pserver:anonymous@cvs.cairographics.org:/cvs/cairo co cairo-ocam
 Source0:	%{name}-%{version}-%{_snap}.tar.gz
 # Source0-md5:	ba63548f5e2eaa5e9f082e737571c2b3
+Patch0:		%{name}-install.patch
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	cairo-devel >= 1.2.0
 BuildRequires:	gtk+2-devel >= 2.8
+BuildRequires:	libsvg-cairo-devel
 BuildRequires:	ocaml >= 3.04-7
+BuildRequires:	ocaml-lablgtk2-devel
 %requires_eq	ocaml-runtime
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -42,31 +45,52 @@ tej biblioteki.
 
 %prep
 %setup -q -n cairo-ocaml
+%patch0 -p1
 
 %build
 %{__aclocal} -I support
 %{__autoconf}
 %configure
-%{__make}
-%{__make} CC="%{__cc} %{rpmcflags} -fPIC" all opt
+
+%{__make} -j1 CC="%{__cc} %{rpmcflags} -fPIC" all opt
+%{__make} -j1 doc
 
 %install
 rm -rf $RPM_BUILD_ROOT
-
-install -d $RPM_BUILD_ROOT%{_libdir}/ocaml/{template,stublibs}
-install *.cm[ixa]* *.a dll*.so $RPM_BUILD_ROOT%{_libdir}/ocaml/template
-install dll*.so $RPM_BUILD_ROOT%{_libdir}/ocaml/stublibs
-
 install -d $RPM_BUILD_ROOT%{_examplesdir}/%{name}-%{version}
-cp -r foo bar $RPM_BUILD_ROOT%{_examplesdir}/%{name}-%{version}
 
-install -d $RPM_BUILD_ROOT%{_libdir}/ocaml/site-lib/template
-cat > $RPM_BUILD_ROOT%{_libdir}/ocaml/site-lib/template/META <<EOF
+%{__make} install \
+	DESTDIR=$RPM_BUILD_ROOT
+
+cp -r test/{Makefile,*.ml} $RPM_BUILD_ROOT%{_examplesdir}/%{name}-%{version}
+
+install -d $RPM_BUILD_ROOT%{_libdir}/ocaml/site-lib/cairo
+cat > $RPM_BUILD_ROOT%{_libdir}/ocaml/site-lib/cairo/META <<EOF
 requires = ""
 version = "%{version}"
-directory = "+template"
-archive(byte) = "template.cma"
-archive(native) = "template.cmxa"
+directory = "+cairo"
+archive(byte) = "cairo.cma"
+archive(native) = "cairo.cmxa"
+linkopts = ""
+EOF
+
+install -d $RPM_BUILD_ROOT%{_libdir}/ocaml/site-lib/cairo-lablgtk
+cat > $RPM_BUILD_ROOT%{_libdir}/ocaml/site-lib/cairo-lablgtk/META <<EOF
+requires = "cairo lablgtk2"
+version = "%{version}"
+directory = "+cairo"
+archive(byte) = "cairo_lablgtk.cma"
+archive(native) = "cairo_lablgtk.cmxa"
+linkopts = ""
+EOF
+
+install -d $RPM_BUILD_ROOT%{_libdir}/ocaml/site-lib/svgcairo
+cat > $RPM_BUILD_ROOT%{_libdir}/ocaml/site-lib/svgcairo/META <<EOF
+requires = "cairo"
+version = "%{version}"
+directory = "+cairo"
+archive(byte) = "svg_cairo.cma"
+archive(native) = "svg_cairo.cmxa"
 linkopts = ""
 EOF
 
@@ -79,9 +103,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %files devel
 %defattr(644,root,root,755)
-%doc LICENSE *.mli
-%dir %{_libdir}/ocaml/template
-%{_libdir}/ocaml/template/*.cm[ixa]*
-%{_libdir}/ocaml/template/*.a
+%doc README doc/html src/*.mli
+%dir %{_libdir}/ocaml/cairo
+%{_libdir}/ocaml/cairo/*.cm[ixa]*
+%{_libdir}/ocaml/cairo/*.a
 %{_examplesdir}/%{name}-%{version}
-%{_libdir}/ocaml/site-lib/template
+%{_libdir}/ocaml/site-lib/*cairo*
