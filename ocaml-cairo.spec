@@ -13,7 +13,7 @@ Patch0:		%{name}-install.patch
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	cairo-devel >= 1.2.0
-BuildRequires:	gtk+2-devel >= 2.8
+BuildRequires:	gtk+2-devel >= 2:2.8
 BuildRequires:	libsvg-cairo-devel
 BuildRequires:	ocaml >= 3.04-7
 BuildRequires:	ocaml-lablgtk2-devel
@@ -21,12 +21,12 @@ BuildRequires:	ocaml-lablgtk2-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
-This package contains files needed to run bytecode executables using
-this library.
+This package contains files needed to run OCaml bytecode executables
+using Cairo library.
 
 %description -l pl.UTF-8
-Pakiet ten zawiera binaria potrzebne do uruchamiania programów
-używających tej biblioteki.
+Pakiet ten zawiera binaria potrzebne do uruchamiania programów w
+OCamlu używających biblioteki Cairo.
 
 %package devel
 Summary:	Cairo binding for OCaml - development part
@@ -37,11 +37,11 @@ Requires:	%{name} = %{version}-%{release}
 
 %description devel
 This package contains files needed to develop OCaml programs using
-this library.
+Cairo library.
 
 %description devel -l pl.UTF-8
 Pakiet ten zawiera pliki niezbędne do tworzenia programów używających
-tej biblioteki.
+biblioteki Cairo.
 
 %prep
 %setup -q -n cairo-ocaml
