@@ -17,6 +17,7 @@ BuildRequires:	gtk+2-devel >= 2:2.8
 BuildRequires:	libsvg-cairo-devel
 BuildRequires:	ocaml >= 3.04-7
 BuildRequires:	ocaml-lablgtk2-devel
+BuildRequires:	pkgconfig
 %requires_eq	ocaml-runtime
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
