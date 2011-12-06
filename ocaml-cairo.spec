@@ -1,24 +1,28 @@
+# TODO: pangocairo META file
 Summary:	Cairo binding for OCaml
 Summary(pl.UTF-8):	Wiązania Cairo dla OCamla
 Name:		ocaml-cairo
 Version:	1.2.0
-%define	_snap 20070411
-Release:	0.%{_snap}.1
-License:	LGPL
+Release:	1
+License:	LGPL v2.1
 Group:		Libraries
-# cvs -d:pserver:anonymous@cvs.cairographics.org:/cvs/cairo co cairo-ocam
-Source0:	%{name}-%{version}-%{_snap}.tar.gz
-# Source0-md5:	ba63548f5e2eaa5e9f082e737571c2b3
+#Source0Download: http://cgit.freedesktop.org/cairo-ocaml/
+Source0:	http://cgit.freedesktop.org/cairo-ocaml/snapshot/cairo-ocaml-%{version}.tar.bz2
+# Source0-md5:	5d0096328f210a6ed032fec68e1bc141
 Patch0:		%{name}-install.patch
-BuildRequires:	autoconf
+URL:		http://cairographics.org/cairo-ocaml/
+BuildRequires:	autoconf >= 2.50
 BuildRequires:	automake
 BuildRequires:	cairo-devel >= 1.2.0
+BuildRequires:	freetype-devel >= 2.0
 BuildRequires:	gtk+2-devel >= 2:2.8
 BuildRequires:	libsvg-cairo-devel
 BuildRequires:	ocaml >= 3.04-7
 BuildRequires:	ocaml-lablgtk2-devel
 BuildRequires:	pkgconfig
 %requires_eq	ocaml-runtime
+Requires:	cairo >= 1.2.0
+Requires:	ocaml-lablgtk2
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -45,7 +49,7 @@ Pakiet ten zawiera pliki niezbędne do tworzenia programów używających
 biblioteki Cairo.
 
 %prep
-%setup -q -n cairo-ocaml
+%setup -q -n cairo-ocaml-%{version}
 %patch0 -p1
 
 %build
@@ -95,18 +99,26 @@ archive(native) = "svg_cairo.cmxa"
 linkopts = ""
 EOF
 
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/ocaml/cairo/*.mli
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/ocaml/stublibs/*.so
+%doc ChangeLog README
+%attr(755,root,root) %{_libdir}/ocaml/stublibs/dllmlcairo.so
+%attr(755,root,root) %{_libdir}/ocaml/stublibs/dllmlcairo_lablgtk.so
+%attr(755,root,root) %{_libdir}/ocaml/stublibs/dllmlpangocairo.so
+%attr(755,root,root) %{_libdir}/ocaml/stublibs/dllmlsvgcairo.so
 
 %files devel
 %defattr(644,root,root,755)
-%doc README doc/html src/*.mli
+%doc doc/html src/*.mli
 %dir %{_libdir}/ocaml/cairo
 %{_libdir}/ocaml/cairo/*.cm[ixa]*
 %{_libdir}/ocaml/cairo/*.a
+%{_libdir}/ocaml/site-lib/cairo
+%{_libdir}/ocaml/site-lib/cairo-lablgtk
+%{_libdir}/ocaml/site-lib/svgcairo
 %{_examplesdir}/%{name}-%{version}
-%{_libdir}/ocaml/site-lib/*cairo*
