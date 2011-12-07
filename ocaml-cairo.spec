@@ -78,7 +78,7 @@ archive(native) = "cairo.cmxa"
 linkopts = ""
 
 package "lablgtk2" (
-	requires "cairo lablgtk2"
+	requires = "cairo lablgtk2"
 	archive(byte) = "cairo_lablgtk.cma"
 	archive(native) = "cairo_lablgtk.cmxa"
 )
