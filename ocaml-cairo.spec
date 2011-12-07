@@ -1,4 +1,3 @@
-# TODO: pangocairo META file
 Summary:	Cairo binding for OCaml
 Summary(pl.UTF-8):	Wiązania Cairo dla OCamla
 Name:		ocaml-cairo
@@ -71,14 +70,21 @@ cp -r test/{Makefile,*.ml} $RPM_BUILD_ROOT%{_examplesdir}/%{name}-%{version}
 
 install -d $RPM_BUILD_ROOT%{_libdir}/ocaml/site-lib/cairo
 cat > $RPM_BUILD_ROOT%{_libdir}/ocaml/site-lib/cairo/META <<EOF
-requires = ""
+requires = "bigarray"
 version = "%{version}"
 directory = "+cairo"
 archive(byte) = "cairo.cma"
 archive(native) = "cairo.cmxa"
 linkopts = ""
+
+package "lablgtk2" (
+	requires "cairo lablgtk2"
+	archive(byte) = "cairo_lablgtk.cma"
+	archive(native) = "cairo_lablgtk.cmxa"
+)
 EOF
 
+# some distros include lablgtk2 subpackage for cairo, we used to provide cairo-lablgtk package
 install -d $RPM_BUILD_ROOT%{_libdir}/ocaml/site-lib/cairo-lablgtk
 cat > $RPM_BUILD_ROOT%{_libdir}/ocaml/site-lib/cairo-lablgtk/META <<EOF
 requires = "cairo lablgtk2"
@@ -86,6 +92,16 @@ version = "%{version}"
 directory = "+cairo"
 archive(byte) = "cairo_lablgtk.cma"
 archive(native) = "cairo_lablgtk.cmxa"
+linkopts = ""
+EOF
+
+install -d $RPM_BUILD_ROOT%{_libdir}/ocaml/site-lib/pangocairo
+cat > $RPM_BUILD_ROOT%{_libdir}/ocaml/site-lib/pangocairo/META <<EOF
+requires = "cairo lablgtk2"
+version = "%{version}"
+directory = "+cairo"
+archive(byte) = "pango_cairo.cma"
+archive(native) = "pango_cairo.cmxa"
 linkopts = ""
 EOF
 
@@ -120,5 +136,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/ocaml/cairo/*.a
 %{_libdir}/ocaml/site-lib/cairo
 %{_libdir}/ocaml/site-lib/cairo-lablgtk
+%{_libdir}/ocaml/site-lib/pangocairo
 %{_libdir}/ocaml/site-lib/svgcairo
 %{_examplesdir}/%{name}-%{version}
