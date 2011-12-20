@@ -2,7 +2,7 @@ Summary:	Cairo binding for OCaml
 Summary(pl.UTF-8):	Wiązania Cairo dla OCamla
 Name:		ocaml-cairo
 Version:	1.2.0
-Release:	1
+Release:	2
 License:	LGPL v2.1
 Group:		Libraries
 #Source0Download: http://cgit.freedesktop.org/cairo-ocaml/
