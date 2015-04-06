@@ -1,8 +1,17 @@
+#
+# Conditional build:
+%bcond_without	ocaml_opt	# skip building native optimized binaries (bytecode is always built)
+
+%ifarch x32
+# not yet available on x32 (ocaml 4.02.1), remove when upstream will support it
+%undefine	with_ocaml_opt
+%endif
+
 Summary:	Cairo binding for OCaml
 Summary(pl.UTF-8):	Wiązania Cairo dla OCamla
 Name:		ocaml-cairo
 Version:	1.2.0
-Release:	6
+Release:	7
 License:	LGPL v2.1
 Group:		Libraries
 #Source0Download: http://cgit.freedesktop.org/cairo-ocaml/
@@ -56,7 +65,9 @@ biblioteki Cairo.
 %{__autoconf}
 %configure
 
-%{__make} -j1 CC="%{__cc} %{rpmcflags} -fPIC" all opt
+%{!?with_ocaml_opt:%{__sed} -i -e 's/OCAMLOPT .*=.*/OCAMLOPT=/' config.make}
+
+%{__make} -j1 CC="%{__cc} %{rpmcflags} -fPIC" all
 %{__make} -j1 doc
 
 %install
