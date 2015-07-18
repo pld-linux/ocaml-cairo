@@ -2,8 +2,8 @@
 # Conditional build:
 %bcond_without	ocaml_opt	# skip building native optimized binaries (bytecode is always built)
 
-%ifarch x32
-# not yet available on x32 (ocaml 4.02.1), remove when upstream will support it
+# not yet available on x32 (ocaml 4.02.1), update when upstream will support it
+%ifnarch %{ix86} %{x8664} arm aarch64 ppc sparc sparcv9
 %undefine	with_ocaml_opt
 %endif
 
@@ -11,7 +11,7 @@ Summary:	Cairo binding for OCaml
 Summary(pl.UTF-8):	Wiązania Cairo dla OCamla
 Name:		ocaml-cairo
 Version:	1.2.0
-Release:	7
+Release:	8
 License:	LGPL v2.1
 Group:		Libraries
 #Source0Download: http://cgit.freedesktop.org/cairo-ocaml/
@@ -143,8 +143,19 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc doc/html src/*.mli
 %dir %{_libdir}/ocaml/cairo
-%{_libdir}/ocaml/cairo/*.cm[ixa]*
-%{_libdir}/ocaml/cairo/*.a
+%{_libdir}/ocaml/cairo/*.cma
+%{_libdir}/ocaml/cairo/*.cmi
+%if %{with ocaml_opt}
+%{_libdir}/ocaml/cairo/*.cmx*
+%{_libdir}/ocaml/cairo/cairo.a
+%{_libdir}/ocaml/cairo/cairo_lablgtk.a
+%{_libdir}/ocaml/cairo/pango_cairo.a
+%{_libdir}/ocaml/cairo/svg_cairo.a
+%endif
+%{_libdir}/ocaml/cairo/libmlcairo.a
+%{_libdir}/ocaml/cairo/libmlcairo_lablgtk.a
+%{_libdir}/ocaml/cairo/libmlpangocairo.a
+%{_libdir}/ocaml/cairo/libmlsvgcairo.a
 %{_libdir}/ocaml/site-lib/cairo
 %{_libdir}/ocaml/site-lib/cairo-lablgtk
 %{_libdir}/ocaml/site-lib/pangocairo
