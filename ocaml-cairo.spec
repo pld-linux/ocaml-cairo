@@ -1,9 +1,9 @@
 #
 # Conditional build:
-%bcond_without	ocaml_opt	# skip building native optimized binaries (bytecode is always built)
+%bcond_without	ocaml_opt	# native optimized binaries (bytecode is always built)
 
 # not yet available on x32 (ocaml 4.02.1), update when upstream will support it
-%ifnarch %{ix86} %{x8664} arm aarch64 ppc sparc sparcv9
+%ifnarch %{ix86} %{x8664} %{arm} aarch64 ppc sparc sparcv9
 %undefine	with_ocaml_opt
 %endif
 
@@ -11,13 +11,15 @@ Summary:	Cairo binding for OCaml
 Summary(pl.UTF-8):	Wiązania Cairo dla OCamla
 Name:		ocaml-cairo
 Version:	1.2.0
-Release:	10
+Release:	11
 License:	LGPL v2.1
 Group:		Libraries
 #Source0Download: http://cgit.freedesktop.org/cairo-ocaml/
 Source0:	http://cgit.freedesktop.org/cairo-ocaml/snapshot/cairo-ocaml-%{version}.tar.bz2
 # Source0-md5:	5d0096328f210a6ed032fec68e1bc141
 Patch0:		%{name}-install.patch
+# https://gitweb.gentoo.org/repo/gentoo.git/plain/dev-ml/cairo-ocaml/files/ocaml406.patch?id=05cb735234f0cb37b593d8cabf893bc4a8452cde
+Patch1:		%{name}-ocaml406.patch
 URL:		http://cairographics.org/cairo-ocaml/
 BuildRequires:	autoconf >= 2.50
 BuildRequires:	automake
@@ -59,6 +61,7 @@ biblioteki Cairo.
 %prep
 %setup -q -n cairo-ocaml-%{version}
 %patch0 -p1
+%patch1 -p1
 
 %build
 %{__aclocal} -I support
@@ -79,8 +82,7 @@ install -d $RPM_BUILD_ROOT%{_examplesdir}/%{name}-%{version}
 
 cp -r test/{Makefile,*.ml} $RPM_BUILD_ROOT%{_examplesdir}/%{name}-%{version}
 
-install -d $RPM_BUILD_ROOT%{_libdir}/ocaml/site-lib/cairo
-cat > $RPM_BUILD_ROOT%{_libdir}/ocaml/site-lib/cairo/META <<EOF
+cat > $RPM_BUILD_ROOT%{_libdir}/ocaml/cairo/META <<EOF
 requires = "bigarray"
 version = "%{version}"
 directory = "+cairo"
@@ -96,8 +98,8 @@ package "lablgtk2" (
 EOF
 
 # some distros include lablgtk2 subpackage for cairo, we used to provide cairo-lablgtk package
-install -d $RPM_BUILD_ROOT%{_libdir}/ocaml/site-lib/cairo-lablgtk
-cat > $RPM_BUILD_ROOT%{_libdir}/ocaml/site-lib/cairo-lablgtk/META <<EOF
+install -d $RPM_BUILD_ROOT%{_libdir}/ocaml/cairo-lablgtk
+cat > $RPM_BUILD_ROOT%{_libdir}/ocaml/cairo-lablgtk/META <<EOF
 requires = "cairo lablgtk2"
 version = "%{version}"
 directory = "+cairo"
@@ -106,8 +108,8 @@ archive(native) = "cairo_lablgtk.cmxa"
 linkopts = ""
 EOF
 
-install -d $RPM_BUILD_ROOT%{_libdir}/ocaml/site-lib/pangocairo
-cat > $RPM_BUILD_ROOT%{_libdir}/ocaml/site-lib/pangocairo/META <<EOF
+install -d $RPM_BUILD_ROOT%{_libdir}/ocaml/pangocairo
+cat > $RPM_BUILD_ROOT%{_libdir}/ocaml/pangocairo/META <<EOF
 requires = "cairo lablgtk2"
 version = "%{version}"
 directory = "+cairo"
@@ -116,8 +118,8 @@ archive(native) = "pango_cairo.cmxa"
 linkopts = ""
 EOF
 
-install -d $RPM_BUILD_ROOT%{_libdir}/ocaml/site-lib/svgcairo
-cat > $RPM_BUILD_ROOT%{_libdir}/ocaml/site-lib/svgcairo/META <<EOF
+install -d $RPM_BUILD_ROOT%{_libdir}/ocaml/svgcairo
+cat > $RPM_BUILD_ROOT%{_libdir}/ocaml/svgcairo/META <<EOF
 requires = "cairo"
 version = "%{version}"
 directory = "+cairo"
@@ -134,6 +136,15 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc ChangeLog README
+%dir %{_libdir}/ocaml/cairo
+%{_libdir}/ocaml/cairo/META
+%{_libdir}/ocaml/cairo/*.cma
+%dir %{_libdir}/ocaml/cairo-lablgtk
+%{_libdir}/ocaml/cairo-lablgtk/META
+%dir %{_libdir}/ocaml/pangocairo
+%{_libdir}/ocaml/pangocairo/META
+%dir %{_libdir}/ocaml/svgcairo
+%{_libdir}/ocaml/svgcairo/META
 %attr(755,root,root) %{_libdir}/ocaml/stublibs/dllmlcairo.so
 %attr(755,root,root) %{_libdir}/ocaml/stublibs/dllmlcairo_lablgtk.so
 %attr(755,root,root) %{_libdir}/ocaml/stublibs/dllmlpangocairo.so
@@ -142,11 +153,10 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(644,root,root,755)
 %doc doc/html src/*.mli
-%dir %{_libdir}/ocaml/cairo
-%{_libdir}/ocaml/cairo/*.cma
 %{_libdir}/ocaml/cairo/*.cmi
 %if %{with ocaml_opt}
-%{_libdir}/ocaml/cairo/*.cmx*
+%{_libdir}/ocaml/cairo/*.cmx
+%{_libdir}/ocaml/cairo/*.cmxa
 %{_libdir}/ocaml/cairo/cairo.a
 %{_libdir}/ocaml/cairo/cairo_lablgtk.a
 %{_libdir}/ocaml/cairo/pango_cairo.a
@@ -156,8 +166,4 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/ocaml/cairo/libmlcairo_lablgtk.a
 %{_libdir}/ocaml/cairo/libmlpangocairo.a
 %{_libdir}/ocaml/cairo/libmlsvgcairo.a
-%{_libdir}/ocaml/site-lib/cairo
-%{_libdir}/ocaml/site-lib/cairo-lablgtk
-%{_libdir}/ocaml/site-lib/pangocairo
-%{_libdir}/ocaml/site-lib/svgcairo
 %{_examplesdir}/%{name}-%{version}
